@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#182d28" />
+    <title>Blockshire</title>
+    <script type="module" crossorigin src="/voxel-kingdom-game/assets/index-CCIi9nA6.js"></script>
+    <link rel="stylesheet" crossorigin href="/voxel-kingdom-game/assets/index-DV3GayNn.css">
+  </head>
+  <body>
+    <canvas id="world" aria-label="Interactive 3D voxel kingdom"></canvas>
+    <main id="main-menu" aria-labelledby="menu-title">
+      <div class="menu-card">
+        <div class="menu-crest" aria-hidden="true">♜</div>
+        <h1 id="menu-title">BLOCKSHIRE</h1>
+        <fieldset class="skirmish-setup">
+          <legend>Skirmish</legend>
+          <label for="skirmish-mode">Mode</label>
+          <select id="skirmish-mode">
+            <option value="player">Player vs CPU</option>
+            <option value="cpu">CPU vs CPU</option>
+          </select>
+          <label for="skirmish-difficulty">CPU difficulty</label>
+          <select id="skirmish-difficulty">
+            <option value="easy">Easy</option>
+            <option value="standard" selected>Standard</option>
+            <option value="hard">Hard</option>
+          </select>
+          <label class="check"><input id="skirmish-reveal" type="checkbox" /> Reveal map</label>
+        </fieldset>
+        <button id="skirmish-game" class="primary">Start Skirmish</button
+        ><button id="resume-battle" class="secondary" hidden>Resume Skirmish</button>
+        <p class="menu-divider">Sandbox</p>
+        <button id="new-game" class="secondary">New Sandbox</button
+        ><button id="continue-game" class="secondary" hidden>Continue Sandbox</button>
+        <p id="menu-status" role="status"></p>
+      </div>
+    </main>
+    <div id="game-ui" hidden>
+      <header class="hud-top">
+        <div class="resources" aria-label="Resources">
+          <span title="Wood">🪵 <b id="wood">240</b></span
+          ><span title="Food">🌾 <b id="food">180</b></span
+          ><span title="Soil">▧ <b id="soil">0</b></span
+          ><span title="Population">♟ <b id="population">12</b></span
+          ><span class="day" id="day">Day 1</span>
+        </div>
+        <button id="open-menu" class="icon" aria-label="Main menu">☰</button>
+      </header>
+      <aside
+        class="view-controls"
+        aria-label="Camera controls: WASD to pan"
+        title="WASD or drag to pan; scroll to zoom"
+      >
+        <button id="zoom-out" aria-label="Zoom out">−</button
+        ><button id="home" aria-label="Reset camera">⌂</button
+        ><button id="zoom-in" aria-label="Zoom in">+</button>
+      </aside>
+      <aside id="details" class="details" hidden>
+        <button id="close-details" aria-label="Close">×</button>
+        <h3 id="detail-title"></h3>
+      </aside>
+      <div id="performance" hidden aria-label="Live rendering statistics"></div>
+      <div id="toast" role="status"></div>
+      <footer class="command-dock">
+        <nav class="toolbar" aria-label="Game commands">
+          <button class="tool active" data-tool="explore" aria-pressed="true">
+            <span class="tool-icon" aria-hidden="true">✥</span><strong>Explore</strong>
+          </button>
+          <button class="tool" data-tool="house" aria-pressed="false">
+            <span class="tool-icon" aria-hidden="true">⌂</span><strong>Cottage</strong
+            ><small>40 wood</small>
+          </button>
+          <button class="tool" data-tool="farm" aria-pressed="false">
+            <span class="tool-icon" aria-hidden="true">▤</span><strong>Farm</strong
+            ><small>30 wood</small>
+          </button>
+          <button class="tool" data-tool="tower" aria-pressed="false">
+            <span class="tool-icon" aria-hidden="true">♜</span><strong>Tower</strong
+            ><small>60 wood</small>
+          </button>
+          <button class="tool" data-tool="tree" aria-pressed="false">
+            <span class="tool-icon" aria-hidden="true">♠</span><strong>Tree</strong
+            ><small>10 food</small>
+          </button>
+          <button class="tool" data-tool="harvest" aria-pressed="false">
+            <span class="tool-icon" aria-hidden="true">⚒</span><strong>Fell tree</strong
+            ><small>Get timber</small>
+          </button>
+          <button class="tool" data-tool="dig" aria-pressed="false">
+            <span class="tool-icon" aria-hidden="true">↧</span><strong>Excavate</strong
+            ><small>0.5 m</small>
+          </button>
+          <button class="tool" data-tool="raise" aria-pressed="false">
+            <span class="tool-icon" aria-hidden="true">↥</span><strong>Raise ground</strong>
+            <small>4 soil · 0.5 m</small>
+          </button>
+          <button class="tool" data-tool="wall" aria-pressed="false">
+            <span class="tool-icon" aria-hidden="true">▥</span><strong>Wall</strong
+            ><small>16 wood · 4 tiles</small>
+          </button>
+          <button class="tool" data-tool="reclaim" aria-pressed="false">
+            <span class="tool-icon" aria-hidden="true">↩</span><strong>Dismantle</strong
+            ><small>Get timber</small>
+          </button>
+        </nav>
+      </footer>
+    </div>
+    <div id="rts-ui" hidden>
+      <header class="rts-top">
+        <div class="rts-resources" aria-label="Resources">
+          <span class="res" title="Food"
+            ><i>🍖</i><b id="res-food">0</b><small id="vil-food">0</small></span
+          ><span class="res" title="Wood"
+            ><i>🪵</i><b id="res-wood">0</b><small id="vil-wood">0</small></span
+          ><span class="res" title="Gold"
+            ><i>🪙</i><b id="res-gold">0</b><small id="vil-gold">0</small></span
+          ><span class="res" title="Stone"
+            ><i>🪨</i><b id="res-stone">0</b><small id="vil-stone">0</small></span
+          ><span class="res pop" title="Population"><i>👥</i><b id="res-pop">0/0</b></span>
+          <span id="rts-age" class="age">Dark Age</span>
+        </div>
+        <div class="rts-clock">
+          <span id="rts-time">0:00</span>
+          <button id="rts-pause" aria-label="Pause">⏸</button>
+          <select id="rts-speed" aria-label="Game speed">
+            <option value="1">Slow</option>
+            <option value="1.7">Normal</option>
+            <option value="2.5">Fast</option>
+            <option value="4">4×</option>
+          </select>
+          <button id="rts-scores" aria-label="Scores">📜</button>
+          <button id="rts-menu" aria-label="Main menu">☰</button>
+        </div>
+      </header>
+      <div id="rts-scoreboard" hidden></div>
+      <ol id="rts-feed" aria-live="polite"></ol>
+      <div id="rts-paused" hidden>Paused</div>
+      <div id="rts-box" hidden></div>
+      <div id="rts-tooltip" hidden></div>
+      <div id="rts-performance" hidden></div>
+      <aside class="rts-zoom" aria-label="Zoom">
+        <button id="rts-zoom-out" aria-label="Zoom out">−</button
+        ><button id="rts-zoom-in" aria-label="Zoom in">+</button>
+      </aside>
+      <footer class="rts-panel">
+        <section id="rts-commands" aria-label="Commands"></section>
+        <section id="rts-info" aria-label="Selection"></section>
+        <section class="rts-map-wrap">
+          <canvas id="rts-minimap" width="144" height="144" aria-label="Minimap"></canvas>
+          <div class="rts-map-buttons">
+            <button id="rts-idle-villager" title="Next idle villager (.)">
+              👷<b id="rts-idle-count">0</b></button
+            ><button id="rts-idle-military" title="Next idle military unit (,)">⚔</button
+            ><button id="rts-home" title="Town Center (H)">🏛</button
+            ><button id="rts-box-mode" title="Touch drag selects units" aria-pressed="false">
+              ⬚
+            </button>
+          </div>
+        </section>
+      </footer>
+      <div id="rts-banner" hidden>
+        <h2 id="rts-banner-title"></h2>
+        <p id="rts-banner-text"></p>
+        <button id="rts-banner-continue">Continue</button
+        ><button id="rts-banner-menu">Main menu</button>
+      </div>
+    </div>
+  </body>
+</html>
